@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/Pictogrammers-Material-Road-variant.128.png</file>
+        <file>image/Bootstrap-Bootstrap-Bootstrap-sign-intersection-t.16.png</file>
+        <file>image/Bootstrap-Bootstrap-Bootstrap-sign-intersection.24.png</file>
+        <file>image/Simpleicons-Team-Simple-N26.24.png</file>
+        <file>image/Bootstrap-Bootstrap-Bootstrap-arrow-down-up.24.png</file>
+        <file>image/Icons8-Ios7-Maps-Center-Direction.24.png</file>
+        <file>image/Amitjakhu-Drip-Return.32.png</file>
+        <file>image/Microsoft-Fluentui-Emoji-Mono-Open-File-Folder.32.png</file>
+        <file>image/Fatcow-Farm-Fresh-Chart-pie-title.24.png</file>
+        <file>image/Bootstrap-Bootstrap-Bootstrap-wifi.24.png</file>
+        <file>image/Iconoir-Team-Iconoir-Send.32.png</file>
+        <file>image/Icons8-Windows-8-Programming-Save.32.png</file>
+        <file>image/Custom-Icon-Design-Mono-General-1-Delete.24.png</file>
+        <file>image/Icons8-Ios7-Very-Basic-Settings-Filled.24.png</file>
+        <file>image/Icons8-Windows-8-Sports-Finish-Flag.24.png</file>
+        <file>image/Stella.png</file>
+    </qresource>
+</RCC>

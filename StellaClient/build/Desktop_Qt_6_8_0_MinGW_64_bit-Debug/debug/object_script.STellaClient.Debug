@@ -1,0 +1,11 @@
+debug/ConnectSlots.o
+debug/StellaSerialize.o
+debug/init_ui.o
+debug/main.o
+debug/tcpclient.o
+debug/trends_ui.o
+debug/widget.o
+debug/widget2paint.o
+debug/qrc_qrc.o
+debug/moc_tcpclient.o
+debug/moc_widget.o

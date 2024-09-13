@@ -1,0 +1,11 @@
+release/ConnectSlots.o
+release/StellaSerialize.o
+release/init_ui.o
+release/main.o
+release/tcpclient.o
+release/trends_ui.o
+release/widget.o
+release/widget2paint.o
+release/qrc_qrc.o
+release/moc_tcpclient.o
+release/moc_widget.o
