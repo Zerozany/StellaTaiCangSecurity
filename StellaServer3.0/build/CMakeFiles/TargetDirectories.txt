@@ -1,0 +1,3 @@
+/home/zero/StellaServer3.0/build/CMakeFiles/stella_sever.dir
+/home/zero/StellaServer3.0/build/CMakeFiles/edit_cache.dir
+/home/zero/StellaServer3.0/build/CMakeFiles/rebuild_cache.dir
