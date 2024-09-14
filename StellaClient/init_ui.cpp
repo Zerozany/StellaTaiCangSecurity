@@ -35,9 +35,6 @@ void Widget::client_layout()
     get_image_button->setMinimumWidth(120);
     connect_server_button->setText("连接");
     get_image_button->setText("获取图像");
-    connect_server_button->setToolTip("连接终端");
-    get_image_button->setToolTip("获取图像(o)");
-    get_image_button->setShortcut(tr("o", "O"));
     connect_server_button->setIcon(QIcon(":/image/Bootstrap-Bootstrap-Bootstrap-wifi.24.png"));
     get_image_button->setIcon(QIcon(":/image/Microsoft-Fluentui-Emoji-Mono-Open-File-Folder.32.png"));
     connect_title_label->setPixmap(QPixmap(":/image/Fatcow-Farm-Fresh-Chart-pie-title.24.png"));
@@ -62,7 +59,7 @@ void Widget::stella_layout()
 {
     QHBoxLayout *stella_groupbox_vlayout{new QHBoxLayout(stella_info_groupbox)};
     QLabel *stella_icon{new QLabel(this)};
-    stella_icon->setPixmap(QPixmap(":/image/Stella.png"));
+    stella_icon->setPixmap(QPixmap(":/image/StellaLogo.png"));
     stella_groupbox_vlayout->addWidget(stella_icon);
 }
 
@@ -104,9 +101,7 @@ void Widget::load_info_layout()
     revoke_button->setMinimumWidth(120);
     send_button->setText("发送");
     revoke_button->setText("撤回");
-    send_button->setToolTip("发送(w)");
     revoke_button->setToolTip("撤回(r)");
-    send_button->setShortcut(tr("w", "W"));
     revoke_button->setShortcut(tr("r", "R"));
 
     intersection_type_icon_label->setPixmap(QPixmap(":/image/Bootstrap-Bootstrap-Bootstrap-sign-intersection.24.png"));
@@ -186,8 +181,8 @@ void Widget::config_lanes_layout()
     /*QLabel lane_id_tip_label{new QLabel(this)};*/
     QLabel *arrow_tip_label{new QLabel(this)};
 
-    select1_tip_label->setText("车道线一");
-    select2_tip_label->setText("车道线二");
+    select1_tip_label->setText("线号(1)");
+    select2_tip_label->setText("线号(2)");
     lane_id_tip_label->setText("车道ID");
     arrow_tip_label->setText("路口方向");
 
@@ -234,10 +229,6 @@ void Widget::config_lanes_layout()
 
     delete_line_button->setText("删除车道");
     save_lane_button->setText("保存车道");
-    delete_line_button->setToolTip("删除(d)");
-    save_lane_button->setToolTip("保存(c)");
-    delete_line_button->setShortcut(tr("d", "D"));
-    save_lane_button->setShortcut(tr("c", "C"));
 
     delete_line_button->setIcon(QIcon(":/image/Custom-Icon-Design-Mono-General-1-Delete.24.png"));
     save_lane_button->setIcon(QIcon(":/image/Icons8-Windows-8-Sports-Finish-Flag.24.png"));
@@ -270,20 +261,20 @@ void Widget::config_sections_layout()
     QHBoxLayout *button_section_hlayout{new QHBoxLayout()};
 
     QLabel *section_line_tip_label{new QLabel(this)};
-    QLabel *section_id_tip_label{new QLabel(this)};
-    /*QLabel *auto_id_tip_label{new QLabel(this)};*/
+    /*QLabel *section_sec_tip_label{new QLabel(this)};*/
+    QLabel *auto_id_tip_label{new QLabel(this)};
 
-    section_line_tip_label->setText("截断线");
-    section_id_tip_label->setText("截断线序号");
+    section_line_tip_label->setText("线号");
+    section_sec_tip_label->setText("截断线序号");
     auto_id_tip_label->setText("所属车道ID");
 
     section_line_tip_label->setStyleSheet("font-size:14px;");
-    section_id_tip_label->setStyleSheet("font-size:14px;");
+    section_sec_tip_label->setStyleSheet("font-size:14px;");
     auto_id_tip_label->setStyleSheet("font-size:14px;");
 
     section_line_combox->setStyleSheet("font-size:14px; height:30px;");
     section_sec_combox->setStyleSheet("font-size:14px; height:30px;");
-    section_laneid_combox->setStyleSheet("font-size:14px; height:30px;");
+    section_id_combox->setStyleSheet("font-size:14px; height:30px;");
 
     section_sec_combox->addItem(" 1");
     section_sec_combox->addItem(" 2");
@@ -300,16 +291,16 @@ void Widget::config_sections_layout()
     section_sec_combox->addItem(" 13");
     section_sec_combox->addItem(" 14");
     section_sec_combox->addItem(" 15");
-    section_laneid_combox->addItem(" 未知");
-    section_laneid_combox->addItem(" 1");
-    section_laneid_combox->addItem(" 2");
-    section_laneid_combox->addItem(" 3");
-    section_laneid_combox->addItem(" 4");
-    section_laneid_combox->addItem(" 5");
-    section_laneid_combox->addItem(" 6");
-    section_laneid_combox->addItem(" 7");
-    section_laneid_combox->addItem(" 8");
-    section_laneid_combox->addItem(" 最大值");
+    section_id_combox->addItem(" 未知");
+    section_id_combox->addItem(" 1");
+    section_id_combox->addItem(" 2");
+    section_id_combox->addItem(" 3");
+    section_id_combox->addItem(" 4");
+    section_id_combox->addItem(" 5");
+    section_id_combox->addItem(" 6");
+    section_id_combox->addItem(" 7");
+    section_id_combox->addItem(" 8");
+    section_id_combox->addItem(" 最大值");
 
     delete_section_button->setMinimumHeight(35);
     save_section_button->setMinimumHeight(35);
@@ -318,21 +309,17 @@ void Widget::config_sections_layout()
 
     delete_section_button->setText("删除断面");
     save_section_button->setText("保存断面");
-    delete_section_button->setToolTip("删除(Ctrl+d)");
-    save_section_button->setToolTip("保存(Ctrl+c)");
-    save_section_button->setShortcut(tr("Ctrl+C"));
-    delete_section_button->setShortcut(tr("Ctrl+D"));
 
     delete_section_button->setIcon(QIcon(":/image/Custom-Icon-Design-Mono-General-1-Delete.24.png"));
     save_section_button->setIcon(QIcon(":/image/Icons8-Windows-8-Sports-Finish-Flag.24.png"));
 
     label_section_vlayout->addWidget(section_line_tip_label);
-    label_section_vlayout->addWidget(section_id_tip_label);
     label_section_vlayout->addWidget(auto_id_tip_label);
 
     combox_section_vlayout->addWidget(section_line_combox);
+    combox_section_vlayout->addWidget(section_id_combox);
     combox_section_vlayout->addWidget(section_sec_combox);
-    combox_section_vlayout->addWidget(section_laneid_combox);
+    label_section_vlayout->addWidget(section_sec_tip_label);
 
     button_section_hlayout->addWidget(delete_section_button);
     button_section_hlayout->addWidget(save_section_button);

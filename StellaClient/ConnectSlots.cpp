@@ -2,14 +2,12 @@
 
 void Widget::connect_server_slot()
 {
-    static QString static_ip{};
-    if(ip_edit->text() != static_ip)
+    if(ip_edit->text() != client.m_client_socket.peerAddress().toString())
     {
-        client.get_ip(ip_edit->text());
         client.stop();
+        client.get_ip(ip_edit->text());
     }
     client.connect_server();
-    static_ip = ip_edit->text();
 }
 
 void Widget::get_data_slot()
@@ -46,15 +44,21 @@ void Widget::delete_lane_slot()
         if (it->lane_id == static_cast<st_tf::LaneID>(lanes_id_combox->currentIndex()))
         {
             it = client.m_area.lanes.erase(it);
+            lane_id_tip_label->setStyleSheet("color:black; font-size:14px;");
             break;
         }
     }
-    for (auto it = client.m_area.sections.begin(); it != client.m_area.sections.end(); it++)
+    for (auto it = client.m_area.sections.begin(); it != client.m_area.sections.end(); )
     {
         if (it->lane_id == static_cast<st_tf::LaneID>(lanes_id_combox->currentIndex()))
         {
             it = client.m_area.sections.erase(it);
-            break;
+            section_sec_tip_label->setStyleSheet("color:black; font-size:14px;");
+        }
+        else
+        {
+            it++;
+            section_sec_tip_label->setStyleSheet("color:red; font-size:14px;");
         }
     }
 }
@@ -78,14 +82,7 @@ void Widget::save_lane_slot()
     {
         if(lane.lane_id == static_cast<st_tf::LaneID>(lanes_id_combox->currentIndex()))
         {
-            if(select_line_combox1->currentIndex() != -1 && select_line_combox2->currentIndex() != -1)
-            {
-                lane.line_ids[0] = select_line_combox1->currentText().toInt();
-                lane.line_ids[1] = select_line_combox2->currentText().toInt();
-            }
-            lane.arrow = static_cast<st_tf::ArrowType>(intersection_direction_combox->currentIndex());
-            lane.lane_id = static_cast<st_tf::LaneID>(lanes_id_combox->currentIndex());
-            lane_id_tip_label->setStyleSheet("color:red; font-size:14px;");
+            log_textedit->append(QString("[%1] %2").arg(client.get_time(), "该车道ID已存在！"));
             return;
         }
     }
@@ -105,9 +102,10 @@ void Widget::delete_section_slot()
 {
     for (auto it = client.m_area.sections.begin(); it != client.m_area.sections.end(); it++)
     {
-        if (it->lane_id == section_laneid_combox->currentIndex())
+        if (it->sec_no == static_cast<int>(section_sec_combox->currentText().toInt()))
         {
             it = client.m_area.sections.erase(it);
+            section_sec_tip_label->setStyleSheet("color:black; font-size:14px;");
             break;
         }
     }
@@ -125,36 +123,23 @@ void Widget::save_section_slot()
     }
     for(auto& s : client.m_area.sections)
     {
-        if(s.lane_id == static_cast<st_tf::LaneID>(section_laneid_combox->currentIndex()))
+        if(s.sec_no == static_cast<int>(section_sec_combox->currentText().toInt()))
         {
-            s.sec_no = static_cast<int>(section_sec_combox->currentText().toInt());
-            if(section_line_combox->count() > 0)
-            {
-                s.line_id = static_cast<int>(section_line_combox->currentText().toInt());
-            }
-            auto_id_tip_label->setStyleSheet("color:red; font-size:14px;");
+            log_textedit->append(QString("[%1] %2").arg(client.get_time(), "该序号截断线已存在！"));
             return;
         }
     }
-    for(auto& lane : client.m_area.lanes)
+    if(section_line_combox->count() < 0)
     {
-        if(lane.lane_id == static_cast<st_tf::LaneID>(lanes_id_combox->currentIndex()))
-        {
-
-            st_tf::Section _section{};
-            if(section_line_combox->count() < 0)
-            {
-                log_textedit->append(QString("[%1] %2").arg(client.get_time(), "请选择有效的横截面！"));
-                return;
-            }
-            _section.line_id = static_cast<int>(section_line_combox->currentText().toInt());
-            _section.sec_no = static_cast<int>(section_sec_combox->currentText().toInt());
-            _section.lane_id = static_cast<st_tf::LaneID>(lanes_id_combox->currentIndex());
-            client.m_area.sections.emplace_back(_section);
-            auto_id_tip_label->setStyleSheet("color:red; font-size:14px;");
-            break;
-        }
+        log_textedit->append(QString("[%1] %2").arg(client.get_time(), "请选择有效的横截面！"));
+        return;
     }
+    st_tf::Section _section{};
+    _section.line_id = static_cast<int>(section_line_combox->currentText().toInt());
+    _section.sec_no = static_cast<int>(section_sec_combox->currentText().toInt());
+    _section.lane_id = static_cast<st_tf::LaneID>(lanes_id_combox->currentIndex());
+    client.m_area.sections.emplace_back(_section);
+    section_sec_tip_label->setStyleSheet("color:red; font-size:14px;");
 }
 
 void Widget::lane_and_auto_slot()
@@ -184,21 +169,22 @@ void Widget::section_and_auto_slot()
 {
     for(const auto& s : client.m_area.sections)
     {
-        if(s.lane_id == static_cast<st_tf::LaneID>(section_laneid_combox->currentIndex()))
+        if(s.sec_no == static_cast<int>(section_sec_combox->currentText().toInt()))
         {
-            if(section_line_combox->count() > 0 && (section_line_combox->count() == select_line_combox1->count() && section_line_combox->count() == select_line_combox2->count()))
+            if(section_line_combox->count() > 0)
             {
                 section_line_combox->setCurrentText(QString::number(s.line_id));
             }
-            if(section_sec_combox->count() > 0)
+            if(section_id_combox->count() > 0)
             {
-                section_sec_combox->setCurrentIndex(s.sec_no);
+                section_id_combox->setCurrentIndex(static_cast<st_tf::LaneID>(s.lane_id));
             }
-            auto_id_tip_label->setStyleSheet("color:red; font-size:14px;");
+            section_sec_tip_label->setStyleSheet("color:red; font-size:14px;");
+            break;
         }
         else
         {
-            auto_id_tip_label->setStyleSheet("color:black; font-size:14px;");
+            section_sec_tip_label->setStyleSheet("color:black; font-size:14px;");
         }
     }
 }
@@ -207,21 +193,28 @@ void Widget::async_timer_slot()
 {
     if(client.table_handle)
     {
-        if(QFile::exists(client.m_image_path) &&  recv_image.load(client.m_image_path))
+        if(QFile::exists(client.m_image_path) && recv_image.load(client.m_image_path))
         {
             scaled_image = recv_image.scaled(image_win_label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             image_win_label->setPixmap(QPixmap::fromImage(scaled_image));
         }
         std::invoke(&Widget::stu2ui, this, client.m_area);
         std::invoke(&Widget::map2ui, this, client.m_params_buff);
+        std::invoke(&Widget::section_and_auto_slot, this);
         std::invoke(&Widget::hideOshow, this, true);
         client.table_handle = false;
     }
-
     if(!client.m_client_socket.state())
     {
         hideOshow(false);
-        image_win_label->setPixmap(QPixmap::fromImage(QImage()));
+        if(QFile::exists(client.m_image_path))
+        {
+            recv_image = QImage();
+            image_win_label->setPixmap(QPixmap::fromImage(QImage()));
+            client.delete_image();
+        }
+        client.m_area = st_tf::Area();
+        client.m_params_buff.clear();
     }
     std::invoke(&Widget::addOdelkey, this, true, client.m_area);
 }

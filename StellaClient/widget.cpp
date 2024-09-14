@@ -33,7 +33,7 @@ void Widget::signals_connect_slots()
     connect(lanes_id_combox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &Widget::lane_and_auto_slot);
 
     /// @brief 截面ID 关联
-    connect(section_laneid_combox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &Widget::section_and_auto_slot);
+    connect(section_sec_combox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &Widget::section_and_auto_slot);
 
     /// @brief 删除截面所选线
     connect(delete_section_button, &QPushButton::clicked, this, &Widget::delete_section_slot);

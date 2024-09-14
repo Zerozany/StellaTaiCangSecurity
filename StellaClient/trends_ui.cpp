@@ -52,3 +52,5 @@ void Widget::map2ui(const std::map<std::string, std::string>& _params)
         ++row;
     }
 }
+
+

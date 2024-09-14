@@ -207,9 +207,9 @@ private:
     /// @brief 截面id box
     QComboBox *section_sec_combox{new QComboBox(this)};
     /// @brief 截面所在车道box
-    QComboBox *section_laneid_combox{new QComboBox(this)};
-    /// @brief 截面所在车道下拉框label
-    QLabel *auto_id_tip_label{new QLabel(this)};
+    QComboBox *section_id_combox{new QComboBox(this)};
+    /// @brief 线号label
+    QLabel *section_sec_tip_label{new QLabel(this)};
     /// @brief 删除截断线按钮
     QPushButton *delete_section_button{new QPushButton(this)};
     /// @brief 保存配置按钮

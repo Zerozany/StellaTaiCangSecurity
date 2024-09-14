@@ -29,37 +29,48 @@ void Widget::save_points(QMouseEvent *event)
 void Widget::save_line(QKeyEvent *event, st_tf::Area& _area)
 {
     int press_value{event->key()};
+    int line_key = -1;
+    // 处理数字 0-9 的情况
     if (press_value >= Qt::Key_0 && press_value <= Qt::Key_9)
     {
-        std::string line_key = std::to_string(press_value - Qt::Key_0);
-        if(buffer_line.points.size() > 1)
+        line_key = press_value - Qt::Key_0;
+    }
+    // 处理 A-F 的情况
+    else if (press_value >= Qt::Key_A && press_value <= Qt::Key_F)
+    {
+        line_key = press_value - Qt::Key_A + 10;
+    }
+    if (line_key >= 0 && line_key <= 15)
+    {
+        if (buffer_line.points.size() > 1)
         {
-            _area.line_map[std::stoi(line_key)] = buffer_line;
+            _area.line_map[line_key] = buffer_line;
             buffer_line.points.clear();
         }
-        else if(_area.line_map.count(std::stoi(line_key)) && buffer_line.points.size() == 0)
+        else if (_area.line_map.count(line_key) && buffer_line.points.size() == 0)
         {
-            for(const auto& lane : _area.lanes)
+            for (const auto& lane : _area.lanes)
             {
-                if(std::stoi(line_key) == lane.line_ids[0] || std::stoi(line_key) == lane.line_ids[1])
+                if (line_key == lane.line_ids[0] || line_key == lane.line_ids[1])
                 {
                     log_textedit->append(QString("[%1] %2").arg(client.get_time(), "请先绘制车道线所代替线段！"));
                     return;
                 }
             }
-            for(const auto& section : _area.sections)
+            for (const auto& section : _area.sections)
             {
-                if(std::stoi(line_key)  == section.line_id)
+                if (line_key == section.line_id)
                 {
                     log_textedit->append(QString("[%1] %2").arg(client.get_time(), "请先绘制车道线所代替线段！"));
                     return;
                 }
             }
-            _area.line_map.erase(std::stoi(line_key));
+            _area.line_map.erase(line_key);
         }
     }
     update();
 }
+
 
 void Widget::draw_image(const st_tf::Area &_area)
 {
@@ -206,7 +217,7 @@ void Widget::draw_image(const st_tf::Area &_area)
             int lX = static_cast<int>(_area.line_map.at(section.line_id).points[1].x / (recv_image.width() / static_cast<float>(image_win_label->width())));
             int lY = static_cast<int>(_area.line_map.at(section.line_id).points[1].y / (recv_image.height() / static_cast<float>(image_win_label->height())));
             painter.setFont(QFont("微软雅黑", 25));
-            painter.drawText(QPoint(lX, lY), QString::number(section.lane_id));
+            painter.drawText(QPoint(lX, lY), QString::number(section.sec_no));
         }
     }
     image_win_label->setPixmap(QPixmap::fromImage(scaled_image));

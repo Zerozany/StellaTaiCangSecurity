@@ -7,6 +7,7 @@ TcpClient::TcpClient(QTextEdit* _log_textedit, QObject *parent)
 
 TcpClient::~TcpClient()
 {
+    m_client_socket.close();
     delete_image();
 }
 
@@ -212,7 +213,7 @@ bool TcpClient::recv_image()
         qint64 bytes_written = file.write(recv_image_buffer);
         if (bytes_written == -1)
         {
-            m_log_textedit->append(QString("[%1] %2").arg(TcpClient::get_time(), "写入文件失败！"));
+            m_log_textedit->append(QString("[%1] %2").arg(TcpClient::get_time(), "图片格式化失败！"));
             file.close();
             return false;
         }

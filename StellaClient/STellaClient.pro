@@ -9,6 +9,7 @@ LIBS += -lws2_32
 
 QT += core gui
 QT += core network
+RC_ICONS += Stella.ico
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++23
@@ -41,4 +42,3 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     qrc.qrc
 
-DISTFILES +=
