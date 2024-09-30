@@ -2,74 +2,72 @@
  * 服务器头文件
  */
 _Pragma("once");
-#include <netinet/in.h>
-#include <unistd.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
 #include <fcntl.h>
-#include <cstdint>
-#include <thread>
-#include <mutex>
-#include <cstdio>
-#include <condition_variable>
-#include <atomic>
-#include <map>
+#include <netinet/in.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <atomic>
+#include <condition_variable>
+#include <cstdint>
+#include <cstdio>
 #include <fstream>
+#include <map>
+#include <mutex>
 #include <sstream>
+#include <thread>
+
 #include "StellaTrafficFlowType.h"
 
 #define __DEBUG
 
 /// @brief 映射 -> 字符串
-bool map2str(const std::map<std::string, std::string> &src, std::string &dst);
+static bool map2str(const std::map<std::string, std::string>& src, std::string& dst);
 
 /// @brief 字符串 -> 映射
-bool str2map(const std::string &src, std::map<std::string, std::string> &dst);
+static bool str2map(const std::string& src, std::map<std::string, std::string>& dst);
 
 /// @brief 序列化结构体
-std::string area2str(const st_tf::Area &_area);
+static std::string area2str(const st_tf::Area& _area);
 
 /// @brief 反序列化结构体
-void str2area(const std::string &_data, st_tf::Area &_area);
+static void str2area(const std::string& _data, st_tf::Area& _area);
 
 /// @brief  服务器发送协议
 namespace Server_t
 {
-    enum struct InfoHandle : std::int8_t
+    enum struct InfoHandle : std::int32_t
     {
-        READY_SEND_IMAGE = 0,    // 服务器回应：已准备发送图片
-        READY_SEND_DATA,         // 服务器回应：已准备发送数据
-        READY_SEND_MAP,          // 服务器回应：已准备发送map
-        SERVER_READY_RECV_DATA,  // 服务器回应：已准备接收数据
-        SERVER_REQUEST_RECV_MAP, // 服务器请求：接收数据
-        TRANSPORT_ERROR,         // 传输错误
+        READY_SEND_IMAGE = 0,     // 服务器回应：已准备发送图片
+        READY_SEND_DATA,          // 服务器回应：已准备发送数据
+        READY_SEND_MAP,           // 服务器回应：已准备发送map
+        SERVER_READY_RECV_DATA,   // 服务器回应：已准备接收数据
+        SERVER_REQUEST_RECV_MAP,  // 服务器请求：接收数据
+        TRANSPORT_ERROR,          // 传输错误
     };
 }
 
 /// @brief 客户端发送协议
 namespace Client_t
 {
-    enum struct InfoHandle : std::int8_t
+    enum struct InfoHandle : std::int32_t
     {
-        REQUEST_RECEIVE_IMAGE = 0, // 客户端请求：接收图片
-        REQUEST_RECEIVE_DATA,      // 客户端请求：接收数据
-        REQUEST_RECEIVE_MAP,       // 客户端请求：接收map
-        CLIENT_REQUEST_SEND_DATA,  // 客户端请求：发送数据
-        CLIENT_READY_SEND_MAP,     // 客户端回应：已准备发送数
-        TRANSPORT_ERROR,           // 传输错误
+        REQUEST_RECEIVE_IMAGE = 0,  // 客户端请求：接收图片
+        REQUEST_RECEIVE_DATA,       // 客户端请求：接收数据
+        REQUEST_RECEIVE_MAP,        // 客户端请求：接收map
+        CLIENT_REQUEST_SEND_DATA,   // 客户端请求：发送数据
+        CLIENT_READY_SEND_MAP,      // 客户端回应：已准备发送数
+        TRANSPORT_ERROR,            // 传输错误
     };
 }
 
 /// @brief 协议缓存区字节数
-constexpr std::size_t REQUEST_SIZE{16};
+constexpr std::size_t REQUEST_SIZE{32};
 
 /// @brief Area缓冲区字节数
 constexpr std::size_t BUFFER_SIZE{4096};
-
-/// @brief 发送图片字节数
-constexpr std::size_t IMAGE_SIZE{150000};
 
 /// @brief 服务器对象
 class TcpServer
@@ -77,10 +75,10 @@ class TcpServer
 public:
     explicit TcpServer() noexcept;
 
-    TcpServer(const TcpServer & /*other*/) = delete;
-    TcpServer &operator=(const TcpServer & /*other*/) = delete;
-    TcpServer(TcpServer && /*other*/) = delete;
-    TcpServer &operator=(TcpServer && /*other*/) = delete;
+    TcpServer(const TcpServer& /*other*/) = delete;
+    TcpServer& operator=(const TcpServer& /*other*/) = delete;
+    TcpServer(TcpServer&& /*other*/) = delete;
+    TcpServer& operator=(TcpServer&& /*other*/) = delete;
 
     ~TcpServer();
 
@@ -88,10 +86,10 @@ public:
     bool get_status() const noexcept;
 
     /// @brief 获取路径以及参数
-    void set_items(const std::string &_paths, const std::map<string, string> &_params, const st_tf::Area &_area) noexcept;
+    void set_items(const std::string& _paths, const std::map<string, string>& _params, const st_tf::Area& _area) noexcept;
 
     /// @brief 接收数据
-    void recv_params(std::map<std::string, std::string> &_params, st_tf::Area &_area) noexcept;
+    void recv_params(std::map<std::string, std::string>& _params, st_tf::Area& _area) noexcept;
 
     /// @brief 开始运行服务器
     void run() noexcept;
@@ -107,19 +105,19 @@ private:
     void recv_request() noexcept;
 
     /// @brief 解析客户端协议
-    void resolve_request(const Client_t::InfoHandle &_info) noexcept;
+    void resolve_request(const Client_t::InfoHandle& _info) noexcept;
 
     /// @brief 向客户端发送协议
-    void send_request(const Server_t::InfoHandle &_info) noexcept;
+    void send_request(const Server_t::InfoHandle& _info) noexcept;
 
     /// @brief 向客户端发送图像
-    bool send_image(const std::string &_img_path) noexcept;
+    bool send_image(const std::string& _img_path) noexcept;
 
     /// @brief 向客户端发送结构体
-    bool send_area(const st_tf::Area &_area) noexcept;
+    bool send_area(const st_tf::Area& _area) noexcept;
 
     /// @brief 向客户端发送配置参数
-    bool send_map(const std::map<std::string, std::string> &_params_buff) noexcept;
+    bool send_map(const std::map<std::string, std::string>& _params_buff) noexcept;
 
     /// @brief 接收客户端发送的结构体
     bool recv_area() noexcept;

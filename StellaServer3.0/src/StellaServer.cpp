@@ -1,6 +1,6 @@
 #include "StellaServer.h"
 
-bool map2str(const std::map<std::string, std::string> &src, std::string &dst)
+static bool map2str(const std::map<std::string, std::string>& src, std::string& dst)
 {
     if (src.empty())
     {
@@ -8,28 +8,39 @@ bool map2str(const std::map<std::string, std::string> &src, std::string &dst)
         return false;
     }
     std::string temp_str{};
-    if (src.size() == 0)
+    for (const auto& [_k, _v] : src)
     {
-        return false;
-    }
-    for (const auto &item : src)
-    {
-        temp_str += (item.first + std::string(":") + item.second + std::string(","));
+        if (_k.empty())
+        {
+            temp_str += "null" + std::string(":");
+        }
+        else
+        {
+            temp_str += _k + std::string(":");
+        }
+        if (_v.empty())
+        {
+            temp_str += "null" + std::string(",");
+        }
+        else
+        {
+            temp_str += _v + std::string(",");
+        }
     }
     dst = temp_str;
     return true;
 }
 
-bool str2map(const std::string &src, std::map<std::string, std::string> &dst)
+static bool str2map(const std::string& src, std::map<std::string, std::string>& dst)
 {
     if (src.empty())
     {
 #ifdef __DEBUG
         std::cerr << __func__ << " : Src is empty" << '\n';
 #endif
-        for (const auto &key : dst)
+        for (const auto& [_k, _v] : dst)
         {
-            dst[key.first] = "0";
+            dst[_k] = "null";
         }
         return true;
     }
@@ -60,7 +71,7 @@ bool str2map(const std::string &src, std::map<std::string, std::string> &dst)
     return true;
 }
 
-std::string area2str(const st_tf::Area &_area)
+static std::string area2str(const st_tf::Area& _area)
 {
     std::ostringstream oss{};
     oss << static_cast<int>(_area.area_no) << ' '
@@ -69,13 +80,13 @@ std::string area2str(const st_tf::Area &_area)
         << static_cast<int>(_area.direction_type) << ' ';
     // lanes
     oss << _area.lanes.size() << ' ';
-    for (const auto &lane : _area.lanes)
+    for (const auto& lane : _area.lanes)
     {
         // line_ids
         oss << lane.line_ids[0] << ' ' << lane.line_ids[1] << ' ';
         // mask_points
         oss << lane.mask_points.size() << ' ';
-        for (const auto &point : lane.mask_points)
+        for (const auto& point : lane.mask_points)
         {
             oss << point.x << ' ' << point.y << ' ';
         }
@@ -85,7 +96,7 @@ std::string area2str(const st_tf::Area &_area)
     }
     // sections
     oss << _area.sections.size() << ' ';
-    for (const auto &section : _area.sections)
+    for (const auto& section : _area.sections)
     {
         // line_id
         oss << section.line_id << ' ';
@@ -95,13 +106,13 @@ std::string area2str(const st_tf::Area &_area)
     }
     // line_map
     oss << _area.line_map.size() << ' ';
-    for (const auto &line_pair : _area.line_map)
+    for (const auto& line_pair : _area.line_map)
     {
         int line_id = line_pair.first;
-        const st_tf::Line &line = line_pair.second;
+        const st_tf::Line& line = line_pair.second;
         // line_id and points
         oss << line_id << ' ' << line.points.size() << ' ';
-        for (const auto &point : line.points)
+        for (const auto& point : line.points)
         {
             oss << point.x << ' ' << point.y << ' ';
         }
@@ -111,7 +122,7 @@ std::string area2str(const st_tf::Area &_area)
     return oss.str();
 }
 
-void str2area(const std::string &_data, st_tf::Area &_area)
+static void str2area(const std::string& _data, st_tf::Area& _area)
 {
     std::istringstream iss(_data);
     int temp{};
@@ -128,7 +139,7 @@ void str2area(const std::string &_data, st_tf::Area &_area)
     std::size_t lanes_size{};
     iss >> lanes_size;
     _area.lanes.resize(lanes_size);
-    for (auto &lane : _area.lanes)
+    for (auto& lane : _area.lanes)
     {
         // 读取 line_ids
         iss >> lane.line_ids[0] >> lane.line_ids[1];
@@ -136,7 +147,7 @@ void str2area(const std::string &_data, st_tf::Area &_area)
         std::size_t mask_points_size{};
         iss >> mask_points_size;
         lane.mask_points.resize(mask_points_size);
-        for (auto &point : lane.mask_points)
+        for (auto& point : lane.mask_points)
         {
             iss >> point.x >> point.y;
         }
@@ -146,12 +157,11 @@ void str2area(const std::string &_data, st_tf::Area &_area)
         iss >> temp;
         lane.lane_id = static_cast<st_tf::LaneID>(temp);
     }
-
     // 读取 sections
     std::size_t sections_size{};
     iss >> sections_size;
     _area.sections.resize(sections_size);
-    for (auto &section : _area.sections)
+    for (auto& section : _area.sections)
     {
         // 读取 line_id
         iss >> section.line_id;
@@ -162,7 +172,6 @@ void str2area(const std::string &_data, st_tf::Area &_area)
         iss >> temp;
         section.sec_no = static_cast<unsigned char>(temp);
     }
-
     // 读取 line_map
     std::size_t line_map_size{};
     iss >> line_map_size;
@@ -175,7 +184,7 @@ void str2area(const std::string &_data, st_tf::Area &_area)
         std::size_t points_size{};
         iss >> points_size;
         line.points.resize(points_size);
-        for (auto &point : line.points)
+        for (auto& point : line.points)
         {
             iss >> point.x >> point.y;
         }
@@ -206,7 +215,7 @@ TcpServer::TcpServer() noexcept
             {
                 close(m_listenfd);
             }
-            std::exit(-1);
+            std::_Exit(EXIT_FAILURE);
         }
         else
         {
@@ -218,9 +227,9 @@ TcpServer::TcpServer() noexcept
 
 TcpServer::~TcpServer()
 {
-    m_atomic_handle = false;
+    m_atomic_handle.store(false);
     m_cv.notify_all();
-    for (auto &t : m_threads)
+    for (auto& t : m_threads)
     {
         if (t.joinable())
         {
@@ -234,7 +243,7 @@ TcpServer::~TcpServer()
 
 bool TcpServer::get_status() const noexcept
 {
-    return m_atomic_handle;
+    return m_atomic_handle.load();
 }
 
 void TcpServer::run() noexcept
@@ -244,7 +253,7 @@ void TcpServer::run() noexcept
         m_threads.emplace_back(std::thread{std::bind(&TcpServer::accept_client, this)});
         m_threads.emplace_back(std::thread{std::bind(&TcpServer::recv_request, this)});
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
         close_server();
@@ -288,7 +297,7 @@ bool TcpServer::init_socket() noexcept
             std::cerr << "Set non-blocking flags failed :" << strerror(errno) << '\n';
             return false;
         }
-        if (bind(m_listenfd, reinterpret_cast<sockaddr *>(&m_server_addr), sizeof(m_server_addr)) == -1)
+        if (bind(m_listenfd, reinterpret_cast<sockaddr*>(&m_server_addr), sizeof(m_server_addr)) == -1)
         {
             std::cerr << "Binding socket failed :" << strerror(errno) << '\n';
             return false;
@@ -299,7 +308,7 @@ bool TcpServer::init_socket() noexcept
             return false;
         }
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what();
         close_server();
@@ -318,17 +327,14 @@ void TcpServer::accept_client() noexcept
     {
         {
             std::unique_lock<std::mutex> lock(m_mtx);
-            while (m_atomic_bool && m_atomic_handle)
-            {
-                m_cv.wait(lock);
-            }
+            m_cv.wait(lock, [this] { return !m_atomic_bool || !m_atomic_handle; });
             if (!m_atomic_handle)
             {
                 break;
             }
         }
-        socklen_t client_size{sizeof(m_client_addr)};
-        if ((m_sockfd = accept(m_listenfd, reinterpret_cast<sockaddr *>(&m_client_addr), &client_size)) == -1)
+        socklen_t client_addr_size{sizeof(m_client_addr)};
+        if ((m_sockfd = accept(m_listenfd, reinterpret_cast<sockaddr*>(&m_client_addr), &client_addr_size)) == -1)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
             {
@@ -337,9 +343,8 @@ void TcpServer::accept_client() noexcept
             }
             else
             {
-                std::cerr << "Client connection exception : " << strerror(errno) << '\n';
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                continue;
+                std::cerr << "Client connection failed : " << strerror(errno) << '\n';
+                break;
             }
         }
         else
@@ -348,7 +353,7 @@ void TcpServer::accept_client() noexcept
             inet_ntop(AF_INET, &m_client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
             u_short client_port{ntohs(m_client_addr.sin_port)};
             std::printf("Client connection successfully -> { IP: %s, Port: %hu }\n", client_ip, client_port);
-            m_atomic_bool = true;
+            m_atomic_bool.store(true);
             m_cv.notify_one();
         }
     }
@@ -360,10 +365,7 @@ void TcpServer::recv_request() noexcept
     {
         {
             std::unique_lock<std::mutex> lock(m_mtx);
-            while (!m_atomic_bool && m_atomic_handle)
-            {
-                m_cv.wait(lock);
-            }
+            m_cv.wait(lock, [this] { return m_atomic_bool || !m_atomic_handle; });
             if (!m_atomic_handle)
             {
                 break;
@@ -382,7 +384,7 @@ void TcpServer::recv_request() noexcept
             {
                 std::cerr << "Server Protocol reception failed : " << strerror(errno) << '\n';
                 close(m_sockfd);
-                m_atomic_bool = false;
+                m_atomic_bool.store(false);
                 m_cv.notify_one();
             }
         }
@@ -390,7 +392,7 @@ void TcpServer::recv_request() noexcept
         {
             std::cerr << "The client has lost connection : " << strerror(errno) << '\n';
             close(m_sockfd);
-            m_atomic_bool = false;
+            m_atomic_bool.store(false);
             m_cv.notify_one();
         }
         else
@@ -401,73 +403,73 @@ void TcpServer::recv_request() noexcept
     }
 }
 
-void TcpServer::resolve_request(const Client_t::InfoHandle &_info) noexcept
+void TcpServer::resolve_request(const Client_t::InfoHandle& _info) noexcept
 {
     try
     {
         switch (_info)
         {
-        // 客户端请求接收图片
-        case Client_t::InfoHandle::REQUEST_RECEIVE_IMAGE:
-        {
-            send_request(Server_t::InfoHandle::READY_SEND_IMAGE);
-            std::this_thread::sleep_for(std::chrono::milliseconds(400));
-            if (!send_image(m_path_list))
+            // 客户端请求接收图片
+            case Client_t::InfoHandle::REQUEST_RECEIVE_IMAGE:
             {
+                send_request(Server_t::InfoHandle::READY_SEND_IMAGE);
+                std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                if (!send_image(m_path_list))
+                {
+                    return;
+                }
+                break;
+            }
+            case Client_t::InfoHandle::REQUEST_RECEIVE_DATA:
+            {
+                send_request(Server_t::InfoHandle::READY_SEND_DATA);
+                std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                if (!send_area(m_area))
+                {
+                    return;
+                }
+                break;
+            }
+            case Client_t::InfoHandle::REQUEST_RECEIVE_MAP:
+            {
+                send_request(Server_t::InfoHandle::READY_SEND_MAP);
+                std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                if (!send_map(m_params_buff))
+                {
+                    return;
+                }
+                break;
+            }
+            // 接收来自客户端发送的结构体
+            case Client_t::InfoHandle::CLIENT_REQUEST_SEND_DATA:
+            {
+                send_request(Server_t::InfoHandle::SERVER_READY_RECV_DATA);
+                std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                if (recv_area())
+                {
+                    send_request(Server_t::InfoHandle::SERVER_REQUEST_RECV_MAP);
+                }
+                break;
+            }
+            case Client_t::InfoHandle::CLIENT_READY_SEND_MAP:
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                if (!recv_map())
+                {
+                    send_request(Server_t::InfoHandle::TRANSPORT_ERROR);
+                }
+                break;
+            }
+            case Client_t::InfoHandle::TRANSPORT_ERROR:
+            {
+                std::cerr << "Client abnormal : " << strerror(errno) << '\n';
+                break;
+            }
+            default:
                 return;
-            }
-            break;
-        }
-        case Client_t::InfoHandle::REQUEST_RECEIVE_DATA:
-        {
-            send_request(Server_t::InfoHandle::READY_SEND_DATA);
-            std::this_thread::sleep_for(std::chrono::milliseconds(400));
-            if (!send_area(m_area))
-            {
-                return;
-            }
-            break;
-        }
-        case Client_t::InfoHandle::REQUEST_RECEIVE_MAP:
-        {
-            send_request(Server_t::InfoHandle::READY_SEND_MAP);
-            std::this_thread::sleep_for(std::chrono::milliseconds(400));
-            if (!send_map(m_params_buff))
-            {
-                return;
-            }
-            break;
-        }
-        // 接收来自客户端发送的结构体
-        case Client_t::InfoHandle::CLIENT_REQUEST_SEND_DATA:
-        {
-            send_request(Server_t::InfoHandle::SERVER_READY_RECV_DATA);
-            std::this_thread::sleep_for(std::chrono::milliseconds(400));
-            if (recv_area())
-            {
-                send_request(Server_t::InfoHandle::SERVER_REQUEST_RECV_MAP);
-            }
-            break;
-        }
-        case Client_t::InfoHandle::CLIENT_READY_SEND_MAP:
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(400));
-            if (!recv_map())
-            {
-                send_request(Server_t::InfoHandle::TRANSPORT_ERROR);
-            }
-            break;
-        }
-        case Client_t::InfoHandle::TRANSPORT_ERROR:
-        {
-            std::cerr << "Client abnormal : " << strerror(errno) << '\n';
-            break;
-        }
-        default:
-            return;
         }
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
         std::exit(-1);
@@ -479,7 +481,7 @@ void TcpServer::resolve_request(const Client_t::InfoHandle &_info) noexcept
     }
 }
 
-void TcpServer::send_request(const Server_t::InfoHandle &_info) noexcept
+void TcpServer::send_request(const Server_t::InfoHandle& _info) noexcept
 {
     try
     {
@@ -493,7 +495,7 @@ void TcpServer::send_request(const Server_t::InfoHandle &_info) noexcept
             }
         }
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
     }
@@ -503,7 +505,7 @@ void TcpServer::send_request(const Server_t::InfoHandle &_info) noexcept
     }
 }
 
-void TcpServer::set_items(const std::string &_paths, const std::map<string, string> &_params, const st_tf::Area &_area) noexcept
+void TcpServer::set_items(const std::string& _paths, const std::map<string, string>& _params, const st_tf::Area& _area) noexcept
 {
     std::lock_guard<std::mutex> lock{m_mtx};
     m_path_list = _paths;
@@ -511,16 +513,16 @@ void TcpServer::set_items(const std::string &_paths, const std::map<string, stri
     m_area = _area;
 }
 
-void TcpServer::recv_params(std::map<std::string, std::string> &_params, st_tf::Area &_area) noexcept
+void TcpServer::recv_params(std::map<std::string, std::string>& _params, st_tf::Area& _area) noexcept
 {
     std::lock_guard<std::mutex> lock{m_mtx};
     _params = m_params_buff;
     _area = m_area;
 }
 
-bool TcpServer::send_image(const std::string &_img_path) noexcept
+bool TcpServer::send_image(const std::string& _img_path) noexcept
 {
-    FILE *fq{nullptr};
+    FILE* fq{nullptr};
     char image_buffer[1024]{};
     std::size_t sz{};
     try
@@ -549,10 +551,12 @@ bool TcpServer::send_image(const std::string &_img_path) noexcept
             sz += len;
         }
         fclose(fq);
+#ifdef __DEBUG
         std::cerr << "send image size : " << sz << std::endl;
+#endif
         return true;
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
         return false;
@@ -564,17 +568,14 @@ bool TcpServer::send_image(const std::string &_img_path) noexcept
     }
 }
 
-bool TcpServer::send_area(const st_tf::Area &_area) noexcept
+bool TcpServer::send_area(const st_tf::Area& _area) noexcept
 {
-    std::mutex _mutex{};
+    // 序列化结构体
+    std::string serialized_str = area2str(m_area);
+    const char* send_buffer{serialized_str.c_str()};
+    std::size_t send_size{serialized_str.size()};
     try
     {
-        // 序列化结构体
-        _mutex.lock();
-        std::string serialized_str = area2str(m_area);
-        _mutex.unlock();
-        const char *send_buffer{serialized_str.c_str()};
-        std::size_t send_size{serialized_str.size()};
         // 发送结构体
         ssize_t area_bytes = send(m_sockfd, send_buffer, send_size, MSG_DONTWAIT);
         if (area_bytes < 0)
@@ -590,7 +591,7 @@ bool TcpServer::send_area(const st_tf::Area &_area) noexcept
         }
 #endif
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
         return false;
@@ -602,7 +603,7 @@ bool TcpServer::send_area(const st_tf::Area &_area) noexcept
     }
 }
 
-bool TcpServer::send_map(const std::map<std::string, std::string> &_params_buff) noexcept
+bool TcpServer::send_map(const std::map<std::string, std::string>& _params_buff) noexcept
 {
     std::string map_str{};
     try
@@ -626,7 +627,7 @@ bool TcpServer::send_map(const std::map<std::string, std::string> &_params_buff)
         }
 #endif
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
         return false;
@@ -640,9 +641,11 @@ bool TcpServer::send_map(const std::map<std::string, std::string> &_params_buff)
 
 bool TcpServer::recv_area() noexcept
 {
+    // 定义接收数据缓存区
     std::vector<char> area_buffer(BUFFER_SIZE);
     try
     {
+        // 接收数据
         while (true)
         {
             ssize_t read_bytes = recv(m_sockfd, area_buffer.data(), BUFFER_SIZE, MSG_DONTWAIT);
@@ -657,6 +660,7 @@ bool TcpServer::recv_area() noexcept
             }
             else if (read_bytes == 0)
             {
+                // 对端关闭
                 return false;
             }
             else
@@ -665,15 +669,13 @@ bool TcpServer::recv_area() noexcept
                 std::cerr << "Recv area_buffer's size : " << read_bytes << '\n';
 #endif
                 std::string recv_data(area_buffer.data(), read_bytes);
-                std::mutex _mutex{};
-                _mutex.lock();
+                std::lock_guard<std::mutex> _lock{m_mtx};
                 str2area(recv_data, m_area);
-                _mutex.unlock();
                 return true;
             }
         }
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
         return false;
@@ -687,9 +689,11 @@ bool TcpServer::recv_area() noexcept
 
 bool TcpServer::recv_map() noexcept
 {
+    // 定义接收数据缓存区
     char map_buffer[BUFFER_SIZE]{};
     try
     {
+        // 接收数据
         while (true)
         {
             ssize_t read_bytes = recv(m_sockfd, map_buffer, BUFFER_SIZE, MSG_DONTWAIT);
@@ -704,6 +708,7 @@ bool TcpServer::recv_map() noexcept
             }
             else if (read_bytes == 0)
             {
+                // 对端关闭
                 return false;
             }
             else
@@ -712,16 +717,14 @@ bool TcpServer::recv_map() noexcept
                 std::cerr << "Recv map's size : " << read_bytes << '\n';
 #endif
                 m_params_buff.clear();
-                std::mutex _mutex{};
-                _mutex.lock();
-                std::string recv_data(map_buffer, read_bytes);
+                std::string recv_data{map_buffer, static_cast<std::size_t>(read_bytes)};
+                std::lock_guard<std::mutex> _lock{m_mtx};
                 str2map(recv_data, m_params_buff);
-                _mutex.unlock();
                 return true;
             }
         }
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << __func__ << ":" << e.what() << '\n';
         return false;
@@ -733,7 +736,7 @@ bool TcpServer::recv_map() noexcept
     }
 }
 
-void TcpServer::close_server() noexcept
+[[noreturn]] void TcpServer::close_server() noexcept
 {
     if (m_listenfd >= 0)
     {
@@ -743,5 +746,5 @@ void TcpServer::close_server() noexcept
     {
         close(m_sockfd);
     }
-    std::exit(-1);
+    std::_Exit(EXIT_FAILURE);
 }

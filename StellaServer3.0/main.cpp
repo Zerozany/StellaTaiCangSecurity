@@ -1,7 +1,7 @@
 #include "StellaServer.h"
 
 std::map<std::string, std::string> Params{
-    {"Name", "Stella"},
+    {"Name", ""},
     {"Port1", "130001"},
     {"Port2", "130002"},
     {"Port3", "130003"},
