@@ -66,12 +66,15 @@ void Widget::stella_layout()
 void Widget::config_params_layout()
 {
     /// @brief 配置参数布局
-    QHBoxLayout *params_table_groupbox_vlayout{new QHBoxLayout(config_params_groupbox)};
+    QVBoxLayout *params_table_groupbox_vlayout{new QVBoxLayout(config_params_groupbox)};  // 改为 QVBoxLayout
+    params_table->setFont(QFont("微软雅黑", 10));
     params_table->setColumnCount(2);
     params_table->setHorizontalHeaderLabels(QStringList() << "名称" << "数值");
     params_table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    params_table->resizeColumnsToContents();
     params_table->verticalHeader()->setHidden(true);
     params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    params_table->horizontalHeader()->setVisible(true);
     params_table_groupbox_vlayout->addWidget(params_table);
 }
 

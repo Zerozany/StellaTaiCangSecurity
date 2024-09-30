@@ -32,6 +32,10 @@ void Widget::ui2map(std::map<std::string, std::string>& _params)
         {
             std::string key{nameItem->text().toStdString()};
             std::string value{valueItem->text().toStdString()};
+            if(value == "")
+            {
+                value = "null";
+            }
             _params[key] = value;
         }
     }
@@ -46,6 +50,7 @@ void Widget::map2ui(const std::map<std::string, std::string>& _params)
     {
         QTableWidgetItem *name_item{new QTableWidgetItem(QString::fromStdString(pair.first))};
         QTableWidgetItem *value_item{new QTableWidgetItem(QString::fromStdString(pair.second))};
+        // qDebug() << QString::fromStdString(pair.first) << " " << QString::fromStdString(pair.second);
         name_item->setFlags(name_item->flags() & ~Qt::ItemIsEditable);
         params_table->setItem(row, 0, name_item);
         params_table->setItem(row, 1, value_item);

@@ -41,13 +41,13 @@ void Widget::signals_connect_slots()
     /// @brief 保存截面
     connect(save_section_button, &QPushButton::clicked, this, &Widget::save_section_slot);
 
+    /// @brief 开启异步监听请求线程
+    connect(async_recv_timer, &QTimer::timeout, this, &Widget::async_timer_slot);
+
     /// @brief 监听信息
     connect(&client.m_client_socket, &QTcpSocket::readyRead, [this]() {
         client.recv_request();
     });
-
-    /// @brief 开启异步监听请求线程
-    connect(async_recv_timer, &QTimer::timeout, this, &Widget::async_timer_slot);
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
@@ -58,7 +58,7 @@ void Widget::keyPressEvent(QKeyEvent *event)
 void Widget::mousePressEvent(QMouseEvent *event)
 {
     /// @brief 鼠标点击事件跟踪
-    if (!recv_image.isNull() && client.get_connect_status())
+    if (!recv_image.isNull())
     {
         std::invoke(&Widget::save_points, this, event);
     }
@@ -85,7 +85,7 @@ void Widget::mousePressEvent(QMouseEvent *event)
 void Widget::paintEvent(QPaintEvent *event)
 {
     /// @brief 绘图事件
-    if (!recv_image.isNull() && client.get_connect_status())
+    if (!recv_image.isNull())
     {
         std::invoke(&Widget::draw_image, this, client.m_area);
     }
@@ -94,7 +94,7 @@ void Widget::paintEvent(QPaintEvent *event)
 void Widget::resizeEvent(QResizeEvent *event)
 {
     /// @brief 实时检测窗口分辨率变化
-    if (!recv_image.isNull() && client.get_connect_status())
+    if (!recv_image.isNull())
     {
         scaled_image = recv_image.scaled(image_win_label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         image_win_label->setPixmap(QPixmap::fromImage(scaled_image));
@@ -107,7 +107,7 @@ bool Widget::eventFilter(QObject *obj, QEvent *event)
     /// @brief 鼠标样式跟踪
     if (obj == image_win_label && event->type() == QEvent::Enter)
     {
-        if (!recv_image.isNull() && client.get_connect_status())
+        if (!recv_image.isNull())
         {
             this->setCursor(Qt::CrossCursor);
             image_win_label->setFocus();

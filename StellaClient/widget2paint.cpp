@@ -1,6 +1,6 @@
 #include "widget.h"
 
-st_tf::Line buffer_line{};
+static st_tf::Line buffer_line{};
 
 void Widget::save_points(QMouseEvent *event)
 {

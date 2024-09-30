@@ -5,17 +5,13 @@
 #include <QTcpSocket>
 #include <QFile>
 #include <QThread>
-#include <QCoreApplication>
 #include <QDataStream>
 #include <QByteArray>
 #include <mutex>
 #include <QTextEdit>
 #include <QDateTime>
-#include <QLabel>
 #include <QApplication>
 #include <QComboBox>
-#include <QLineEdit>
-#include <string>
 #include <atomic>
 #include "StellaSerialize.h"
 
@@ -48,6 +44,9 @@ public:
     /// @brief 接收请求
     void recv_request();
 
+    /// @brief 处理请求
+    void resolve_request(const Server_t::InfoHandle& _info_handle);
+
     /// @brief 接收图片
     bool recv_image();
 
@@ -73,12 +72,6 @@ public:
     /// @brief 客户端套接字
     QTcpSocket m_client_socket{};
 
-    /// @brief 服务器ip地址
-    QString m_host{};
-
-    /// @brief 服务器端口
-    quint16 m_port{13000};
-
     /// @brief 图片存储路径
     QString m_image_path{QCoreApplication::applicationDirPath() + "/stellaLine.jpg"};
 
@@ -88,12 +81,18 @@ public:
     /// @brief 配置参数容器
     std::map<std::string, std::string> m_params_buff{};
 
-    /// @brief 客户端互斥锁
-    std::mutex m_mtx{};
-
     /// @brief 绘制表格(ui)句柄
     std::atomic<bool> table_handle{false};
 
+private:
+    /// @brief 服务器ip地址
+    QString m_host{};
+
+    /// @brief 服务器端口
+    quint16 m_port{13000};
+
+    /// @brief 客户端互斥锁
+    std::mutex m_mtx{};
 };
 
 #endif // TCPCLIENT_H

@@ -7,7 +7,7 @@
 /// @brief 服务器发送协议
 namespace Server_t
 {
-enum struct InfoHandle : std::int8_t
+enum struct InfoHandle : std::int32_t
 {
     READY_SEND_IMAGE = 0,    // 服务器回应：已准备发送图片
     READY_SEND_DATA,         // 服务器回应：已准备发送数据
@@ -21,7 +21,7 @@ enum struct InfoHandle : std::int8_t
 /// @brief 客户端发送协议
 namespace Client_t
 {
-enum struct InfoHandle : std::int8_t
+enum struct InfoHandle : std::int32_t
 {
     REQUEST_RECEIVE_IMAGE = 0, // 客户端请求：接收图片
     REQUEST_RECEIVE_DATA,      // 客户端请求：接收数据
