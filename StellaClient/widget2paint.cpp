@@ -153,72 +153,79 @@ void Widget::draw_image(const st_tf::Area &_area)
             }
         }
     }
-    if (_area.lanes.size() > 0)
+    try
     {
-        painter.setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        for (const auto& lane : _area.lanes)
+        if (_area.lanes.size() > 0)
         {
-            for (const auto& line_num : lane.line_ids)
+            painter.setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            for (const auto& lane : _area.lanes)
             {
-                const auto& line = _area.line_map.at(line_num);
-                if (line.points.size() > 1)
+                for (const auto& line_num : lane.line_ids)
                 {
-                    for (std::size_t i{1}; i < line.points.size(); ++i)
+                    const auto& line = _area.line_map.at(line_num);
+                    if (line.points.size() > 1)
                     {
-                        QPoint start
+                        for (std::size_t i{1}; i < line.points.size(); ++i)
                         {
-                            static_cast<int>(line.points[i - 1].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
-                            static_cast<int>(line.points[i - 1].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
-                        };
-                        QPoint end
-                        {
-                            static_cast<int>(line.points[i].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
-                            static_cast<int>(line.points[i].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
-                        };
-                        painter.drawLine(start, end);
+                            QPoint start
+                                {
+                                    static_cast<int>(line.points[i - 1].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
+                                    static_cast<int>(line.points[i - 1].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
+                                };
+                            QPoint end
+                                {
+                                    static_cast<int>(line.points[i].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
+                                    static_cast<int>(line.points[i].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
+                                };
+                            painter.drawLine(start, end);
+                        }
+                    }
+                }
+                if (sizeof(lane.line_ids) / sizeof(int) > 1)
+                {
+                    const auto& line1 = _area.line_map.at(lane.line_ids[0]);
+                    const auto& line2 = _area.line_map.at(lane.line_ids[1]);
+                    if (line1.points.size() > 1 && line2.points.size() > 1)
+                    {
+                        int lX = static_cast<int>(line1.points[1].x / (recv_image.width() / static_cast<float>(image_win_label->width())));
+                        int lY = static_cast<int>(line1.points[1].y / (recv_image.height() / static_cast<float>(image_win_label->height())));
+                        int rX = static_cast<int>(line2.points[1].x / (recv_image.width() / static_cast<float>(image_win_label->width())));
+                        int rY = static_cast<int>(line2.points[1].y / (recv_image.height() / static_cast<float>(image_win_label->height())));
+                        painter.setFont(QFont("微软雅黑", 25));
+                        painter.drawText(QPoint((lX + rX) / 2, (lY + rY) / 2), QString::number(lane.lane_id));
                     }
                 }
             }
-            if (sizeof(lane.line_ids) / sizeof(int) > 1)
+        }
+        if( _area.sections.size() > 0)
+        {
+            painter.setPen(QPen(Qt::red, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            for (const auto &section : _area.sections)
             {
-                const auto& line1 = _area.line_map.at(lane.line_ids[0]);
-                const auto& line2 = _area.line_map.at(lane.line_ids[1]);
-                if (line1.points.size() > 1 && line2.points.size() > 1)
+                for (std::size_t i{1}; i < _area.line_map.at(section.line_id).points.size(); ++i)
                 {
-                    int lX = static_cast<int>(line1.points[1].x / (recv_image.width() / static_cast<float>(image_win_label->width())));
-                    int lY = static_cast<int>(line1.points[1].y / (recv_image.height() / static_cast<float>(image_win_label->height())));
-                    int rX = static_cast<int>(line2.points[1].x / (recv_image.width() / static_cast<float>(image_win_label->width())));
-                    int rY = static_cast<int>(line2.points[1].y / (recv_image.height() / static_cast<float>(image_win_label->height())));
-                    painter.setFont(QFont("微软雅黑", 25));
-                    painter.drawText(QPoint((lX + rX) / 2, (lY + rY) / 2), QString::number(lane.lane_id));
+                    QPoint start
+                        {
+                            static_cast<int>(_area.line_map.at(section.line_id).points[i - 1].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
+                            static_cast<int>(_area.line_map.at(section.line_id).points[i - 1].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
+                        };
+                    QPoint end
+                        {
+                            static_cast<int>(_area.line_map.at(section.line_id).points[i].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
+                            static_cast<int>(_area.line_map.at(section.line_id).points[i].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
+                        };
+                    painter.drawLine(start, end);
                 }
+                int lX = static_cast<int>(_area.line_map.at(section.line_id).points[1].x / (recv_image.width() / static_cast<float>(image_win_label->width())));
+                int lY = static_cast<int>(_area.line_map.at(section.line_id).points[1].y / (recv_image.height() / static_cast<float>(image_win_label->height())));
+                painter.setFont(QFont("微软雅黑", 25));
+                painter.drawText(QPoint(lX, lY), QString::number(section.sec_no));
             }
         }
     }
-    if( _area.sections.size() > 0)
+    catch(const std::exception& e)
     {
-        painter.setPen(QPen(Qt::red, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        for (const auto &section : _area.sections)
-        {
-            for (std::size_t i{1}; i < _area.line_map.at(section.line_id).points.size(); ++i)
-            {
-                QPoint start
-                {
-                    static_cast<int>(_area.line_map.at(section.line_id).points[i - 1].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
-                    static_cast<int>(_area.line_map.at(section.line_id).points[i - 1].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
-                };
-                QPoint end
-                {
-                    static_cast<int>(_area.line_map.at(section.line_id).points[i].x / (recv_image.width() / static_cast<float>(image_win_label->width()))),
-                    static_cast<int>(_area.line_map.at(section.line_id).points[i].y / (recv_image.height() / static_cast<float>(image_win_label->height())))
-                };
-                painter.drawLine(start, end);
-            }
-            int lX = static_cast<int>(_area.line_map.at(section.line_id).points[1].x / (recv_image.width() / static_cast<float>(image_win_label->width())));
-            int lY = static_cast<int>(_area.line_map.at(section.line_id).points[1].y / (recv_image.height() / static_cast<float>(image_win_label->height())));
-            painter.setFont(QFont("微软雅黑", 25));
-            painter.drawText(QPoint(lX, lY), QString::number(section.sec_no));
-        }
+        qDebug() << "Exception : " << e.what();
     }
     image_win_label->setPixmap(QPixmap::fromImage(scaled_image));
 }
